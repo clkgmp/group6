@@ -52,7 +52,7 @@ export function StatsOverview({ movies, onFilterChange, currentFilter, onProgres
   if (totalMovies === 0) return null
 
   return (
-    <div className="mb-8">
+    <div className="mb-4 md:mb-8">
       {currentFilter && currentFilter !== "all" && (
         <motion.div
           className="mb-4 flex items-center justify-between"
