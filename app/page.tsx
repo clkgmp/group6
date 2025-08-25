@@ -12,7 +12,7 @@ import { DownloadButton } from "@/components/download-button"
 import { Navbar } from "@/components/navbar"
 import type { Movie } from "@/types/movie"
 import toast from "react-hot-toast"
-import { Loader2, Film, Plus } from "lucide-react"
+import { Loader2, Film, Plus, TrendingUp, X, CheckCircle, Clock, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -173,19 +173,19 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen bg-background pb-16 md:pb-0">
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py- md:py-8">
         <motion.div
-          className="mb-8"
+          className="mb-4 md:mb-8"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-2 md:mb-4">
             <div>
-              <h1 className="text-3xl font-bold mb-2">My Watchlist</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">My Watchlist</h1>
+              <p className="text-muted-foreground text-sm md:text-base">
                 {movies.length === 0 ? "No movies yet" : `${movies.length} movies in your collection`}
               </p>
             </div>
@@ -298,91 +298,145 @@ export default function HomePage() {
 
       {showProgressDetails && (
         <motion.div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={() => setShowProgressDetails(false)}
         >
           <motion.div
-            className="bg-background rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-background/95 backdrop-blur-sm border rounded-2xl p-6 max-w-lg w-full max-h-[85vh] overflow-y-auto shadow-2xl"
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 20 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Progress Details</h3>
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold">Progress Details</h3>
+              </div>
               <button
                 onClick={() => setShowProgressDetails(false)}
-                className="text-muted-foreground hover:text-foreground transition-colors"
+                className="p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground"
               >
-                ✕
+                <X className="h-5 w-5" />
               </button>
             </div>
             
-            <div className="space-y-4">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-2">
+            <div className="space-y-6">
+              {/* Progress Summary Card */}
+              <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl p-6 text-center border border-primary/20">
+                <div className="text-4xl font-bold text-primary mb-2">
                   {movies.length > 0 ? (movies.filter(m => m.status === "watched").length / movies.length * 100).toFixed(1) : "0"}%
                 </div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-lg font-medium text-foreground mb-1">
                   {movies.filter(m => m.status === "watched").length} of {movies.length} movies watched
                 </div>
-                <div className="text-xs text-muted-foreground mt-1">
+                <div className="text-sm text-muted-foreground">
                   {movies.filter(m => m.status === "unwatched").length} movies remaining
                 </div>
               </div>
               
-              <div className="w-full bg-muted rounded-full h-2 relative">
-                <div 
-                  className="bg-primary h-2 rounded-full transition-all duration-300"
-                  style={{ 
-                    width: `${movies.length > 0 ? (movies.filter(m => m.status === "watched").length / movies.length) * 100 : 0}%` 
-                  }}
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xs font-medium text-foreground">
+              {/* Enhanced Progress Bar */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium">Progress</span>
+                  <span className="text-muted-foreground">
                     {movies.length > 0 ? `${movies.filter(m => m.status === "watched").length}/${movies.length}` : "0/0"}
                   </span>
                 </div>
-              </div>
-              
-              <div className="space-y-2">
-                <h4 className="font-medium">Watched Movies:</h4>
-                <div className="max-h-32 overflow-y-auto space-y-1">
-                  {movies.filter(m => m.status === "watched").map(movie => (
-                    <div key={movie.id} className="text-sm text-muted-foreground">
-                      • {movie.title} ({movie.year})
-                    </div>
-                  ))}
+                <div className="w-full bg-muted rounded-full h-3 relative overflow-hidden">
+                  <div 
+                    className="bg-gradient-to-r from-primary to-primary/80 h-3 rounded-full transition-all duration-500 ease-out shadow-sm"
+                    style={{ 
+                      width: `${movies.length > 0 ? (movies.filter(m => m.status === "watched").length / movies.length) * 100 : 0}%` 
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
                 </div>
               </div>
               
-              <div className="space-y-2">
-                <h4 className="font-medium">Remaining to Watch:</h4>
-                <div className="max-h-32 overflow-y-auto space-y-1">
-                  {movies.filter(m => m.status === "unwatched").map(movie => (
-                    <div key={movie.id} className="text-sm text-muted-foreground">
-                      • {movie.title} ({movie.year})
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 text-center">
+                  <div className="flex items-center justify-center mb-2">
+                    <div className="p-2 bg-green-500/20 rounded-lg">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
                     </div>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="pt-4 border-t">
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div>
-                    <div className="text-lg font-semibold text-green-600">
-                      {movies.filter(m => m.status === "watched").length}
-                    </div>
-                    <div className="text-xs text-muted-foreground">Completed</div>
                   </div>
-                  <div>
-                    <div className="text-lg font-semibold text-orange-600">
-                      {movies.filter(m => m.status === "unwatched").length}
+                  <div className="text-2xl font-bold text-green-600">
+                    {movies.filter(m => m.status === "watched").length}
+                  </div>
+                  <div className="text-sm text-green-600/80 font-medium">Completed</div>
+                </div>
+                <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 text-center">
+                  <div className="flex items-center justify-center mb-2">
+                    <div className="p-2 bg-orange-500/20 rounded-lg">
+                      <Clock className="h-5 w-5 text-orange-600" />
                     </div>
-                    <div className="text-xs text-muted-foreground">Pending</div>
+                  </div>
+                  <div className="text-2xl font-bold text-orange-600">
+                    {movies.filter(m => m.status === "unwatched").length}
+                  </div>
+                  <div className="text-sm text-orange-600/80 font-medium">Pending</div>
+                </div>
+              </div>
+              
+              {/* Movie Lists */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Watched Movies */}
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <div className="p-1.5 bg-green-500/20 rounded-lg">
+                      <Eye className="h-4 w-4 text-green-600" />
+                    </div>
+                    <h4 className="font-semibold text-foreground">Watched Movies</h4>
+                  </div>
+                  <div className="bg-muted/30 rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
+                    {movies.filter(m => m.status === "watched").length > 0 ? (
+                      movies.filter(m => m.status === "watched").map(movie => (
+                        <div key={movie.id} className="flex items-center space-x-2 p-2 bg-background rounded-md hover:bg-muted/50 transition-colors">
+                          <div className="w-2 h-2 bg-green-500 rounded-full" />
+                          <span className="text-sm text-foreground font-medium">{movie.title}</span>
+                          <span className="text-xs text-muted-foreground">({movie.year})</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-4 text-muted-foreground">
+                        <Film className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">No movies watched yet</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Remaining to Watch */}
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <div className="p-1.5 bg-orange-500/20 rounded-lg">
+                      <EyeOff className="h-4 w-4 text-orange-600" />
+                    </div>
+                    <h4 className="font-semibold text-foreground">Remaining to Watch</h4>
+                  </div>
+                  <div className="bg-muted/30 rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
+                    {movies.filter(m => m.status === "unwatched").length > 0 ? (
+                      movies.filter(m => m.status === "unwatched").map(movie => (
+                        <div key={movie.id} className="flex items-center space-x-2 p-2 bg-background rounded-md hover:bg-muted/50 transition-colors">
+                          <div className="w-2 h-2 bg-orange-500 rounded-full" />
+                          <span className="text-sm text-foreground font-medium">{movie.title}</span>
+                          <span className="text-xs text-muted-foreground">({movie.year})</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-4 text-muted-foreground">
+                        <CheckCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">All movies watched!</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
