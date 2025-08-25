@@ -29,7 +29,7 @@ export function SearchFilter({ onSearch, onFilter, searchQuery, filterStatus }: 
 
   return (
     <motion.div
-      className="flex flex-col sm:flex-row gap-4 mb-6"
+      className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-4 md:mb-6"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
