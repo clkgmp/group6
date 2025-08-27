@@ -35,7 +35,6 @@ export default function HomePage() {
   })
   const [isDeleting, setIsDeleting] = useState(false)
   const [isUpdating, setIsUpdating] = useState(false) // Added updating state
-  const [showProgressDetails, setShowProgressDetails] = useState(false)
 
   // Fetch movies
   const fetchMovies = async () => {
