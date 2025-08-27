@@ -1,23 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { put, list } from "@vercel/blob";
-import { truncate } from "fs/promises";
-
-const FILE_NAME = "movies.json";
-
-// ✅ Helper: get movies.json from Blob
-async function getMovies(): Promise<any[]> {
-  try {
-    const blobs = await list({ token: process.env.BLOB_READ_WRITE_TOKEN });
-    const file = blobs.blobs.find((b) => b.pathname === FILE_NAME);
-    if (!file) return [];
-
-    const res = await fetch(file.url);
-    if (!res.ok) return [];
-    return await res.json();
-  } catch {
-    return [];
-  }
-}
+import { getMovies, writeMovies, updateMovieTimestamps } from "@/lib/blob-storage";
 
 // ✅ GET single movie
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
@@ -60,17 +42,17 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: "Movie not found" }, { status: 404 });
     }
 
-    movies[index] = { ...movies[index], title: title.trim(), year, status };
-
-    await put(FILE_NAME, JSON.stringify(movies, null, 2), {
-      access: "public",
-      contentType: "application/json",
-        allowOverwrite: true,  
-      addRandomSuffix: false,          // ⚡ important for overwrites
-      ...(process.env.BLOB_READ_WRITE_TOKEN ? { token: process.env.BLOB_READ_WRITE_TOKEN } : {}),
+    movies[index] = updateMovieTimestamps({
+      ...movies[index], 
+      title: title.trim(), 
+      year, 
+      status
     });
 
-
+    const writeSuccess = await writeMovies(movies);
+    if (!writeSuccess) {
+      return NextResponse.json({ error: "Failed to update movie" }, { status: 500 });
+    }
 
     return NextResponse.json({ message: "Movie updated successfully" });
   } catch (error) {
@@ -90,13 +72,10 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: "Movie not found" }, { status: 404 });
     }
 
-    await put(FILE_NAME, JSON.stringify(newMovies, null, 2), {
-      access: "public",
-      contentType: "application/json",
-        allowOverwrite: true,  
-      addRandomSuffix: false,
-      token: process.env.BLOB_READ_WRITE_TOKEN,
-    });
+    const writeSuccess = await writeMovies(newMovies);
+    if (!writeSuccess) {
+      return NextResponse.json({ error: "Failed to delete movie" }, { status: 500 });
+    }
 
     return NextResponse.json({ message: "Movie deleted successfully" });
   } catch (error) {
