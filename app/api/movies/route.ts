@@ -1,25 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { put, list } from "@vercel/blob";
-
-const FILE_NAME = "movies.json";
-
-// ✅ Helper: get movies.json from Blob
-async function getMovies(): Promise<any[]> {
-  try {
-    const blobsList = await list({ token: process.env.BLOB_READ_WRITE_TOKEN });
-    // Find the blob exactly named movies.json
-    const file = blobsList.blobs.find((b) => b.pathname === FILE_NAME);
-    if (!file) return [];
-
-    const res = await fetch(file.url);
-    if (!res.ok) return [];
-    return await res.json();
-  } catch (err) {
-    console.error("Error fetching movies from blob:", err);
-    return [];
-  }
-}
-
+import { getMovies, writeMovies, createMovieObject } from "@/lib/blob-storage";
 
 // ✅ GET all movies
 export async function GET() {
@@ -48,18 +28,14 @@ export async function POST(request: NextRequest) {
     }
 
     const movies = await getMovies();
-    const newMovie = { id: Date.now(), title: title.trim(), year, status };
+    const newMovie = createMovieObject(title, year, status);
 
     movies.push(newMovie);
-    await put(FILE_NAME, JSON.stringify(movies, null, 2), {
-      access: "public",
-      contentType: "application/json",
-        allowOverwrite: true,  
-      addRandomSuffix: false,          // ⚡ important for overwrites
-      ...(process.env.BLOB_READ_WRITE_TOKEN ? { token: process.env.BLOB_READ_WRITE_TOKEN } : {}),
-    });
-
-
+    
+    const writeSuccess = await writeMovies(movies);
+    if (!writeSuccess) {
+      return NextResponse.json({ error: "Failed to save movie" }, { status: 500 });
+    }
 
     return NextResponse.json({ message: "Movie added successfully", id: newMovie.id }, { status: 201 });
   } catch (error) {
