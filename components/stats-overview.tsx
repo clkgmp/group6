@@ -2,23 +2,19 @@
 
 import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Eye, EyeOff, Film, TrendingUp } from "lucide-react"
+import { Eye, EyeOff, Film } from "lucide-react"
 import type { Movie } from "@/types/movie"
 
 interface StatsOverviewProps {
   movies: Movie[]
   onFilterChange?: (status: "all" | "watched" | "unwatched") => void
   currentFilter?: "all" | "watched" | "unwatched"
-  onProgressClick?: () => void
 }
 
-export function StatsOverview({ movies, onFilterChange, currentFilter, onProgressClick }: StatsOverviewProps) {
+export function StatsOverview({ movies, onFilterChange, currentFilter }: StatsOverviewProps) {
   const totalMovies = movies.length
   const watchedMovies = movies.filter((movie) => movie.status === "watched").length
   const unwatchedMovies = movies.filter((movie) => movie.status === "unwatched").length
-  const watchedPercentage = totalMovies > 0 ? (watchedMovies / totalMovies) * 100 : 0
-  const roundedPercentage = Math.round(watchedPercentage)
-  const decimalPercentage = watchedPercentage.toFixed(1)
 
   const stats = [
     {
@@ -39,14 +35,6 @@ export function StatsOverview({ movies, onFilterChange, currentFilter, onProgres
       icon: EyeOff,
       color: "text-orange-600",
     },
-    {
-      title: "Progress",
-      value: `${roundedPercentage}%`,
-      icon: TrendingUp,
-      color: "text-blue-600",
-      subtitle: totalMovies > 0 ? `${watchedMovies}/${totalMovies} movies` : "No movies",
-      decimalValue: decimalPercentage,
-    },
   ]
 
   if (totalMovies === 0) return null
@@ -55,7 +43,7 @@ export function StatsOverview({ movies, onFilterChange, currentFilter, onProgres
     <div className="mb-4 md:mb-8">
       {currentFilter && currentFilter !== "all" && (
         <motion.div
-          className="mb-4 flex items-center justify-between"
+          className="mb-3 md:mb-4 flex items-center justify-between"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
@@ -74,7 +62,7 @@ export function StatsOverview({ movies, onFilterChange, currentFilter, onProgres
         </motion.div>
             )}
              <motion.div
-         className="grid grid-cols-2 md:grid-cols-4 gap-4 items-stretch"
+         className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 items-stretch"
          initial={{ opacity: 0, y: 20 }}
          animate={{ opacity: 1, y: 0 }}
          transition={{ duration: 0.4, delay: 0.2 }}
@@ -91,8 +79,7 @@ export function StatsOverview({ movies, onFilterChange, currentFilter, onProgres
           >
             <Card 
               className={`h-full ${
-                (onFilterChange && (stat.title === "Total Movies" || stat.title === "Watched" || stat.title === "Unwatched")) ||
-                (onProgressClick && stat.title === "Progress")
+                (onFilterChange && (stat.title === "Total Movies" || stat.title === "Watched" || stat.title === "Unwatched"))
                   ? "cursor-pointer hover:shadow-md transition-all duration-200" 
                   : ""
               } ${
@@ -111,8 +98,6 @@ export function StatsOverview({ movies, onFilterChange, currentFilter, onProgres
                   onFilterChange("watched")
                 } else if (onFilterChange && stat.title === "Unwatched") {
                   onFilterChange("unwatched")
-                } else if (onProgressClick && stat.title === "Progress") {
-                  onProgressClick()
                 }
               }}
             >
@@ -122,16 +107,9 @@ export function StatsOverview({ movies, onFilterChange, currentFilter, onProgres
               </CardHeader>
               <CardContent className="pb-4">
                 <div className="text-2xl font-bold">{stat.value}</div>
-                {stat.title === "Progress" && stat.subtitle && (
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {stat.subtitle}
-                  </div>
-                )}
-                {stat.title !== "Progress" && (
-                  <div className="text-xs text-muted-foreground mt-1 opacity-0">
-                    &nbsp;
-                  </div>
-                )}
+                <div className="text-xs text-muted-foreground mt-1 opacity-0">
+                  &nbsp;
+                </div>
               </CardContent>
             </Card>
           </motion.div>
